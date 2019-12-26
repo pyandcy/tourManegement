@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.ttms.product.dao.ProjectDao">
+   <!-- 定义一个查询语句获取所有项目信息 -->
+   <select id="findObjects" 
+           resultType="project">
+       select *
+       from tms_projects
+   </select>
+   <!-- 通过sql标签定义一个语句,后续其他元素用到了
+          可以通过include标签进行包含即可 -->
+   <sql id="whereQuery">
+      <where>
+        <if test="name!=null and name!=''">
+           name like concat("%",#{name},"%")
+        </if>
+        <if test="valid!=null">
+           and valid=#{valid}
+        </if>
+      </where>
+    </sql>
+    <select id="findPageObjects"
+           resultType="project">
+      select *
+      from tms_projects
+      <include refid="whereQuery"/>
+      order by createdTime desc
+      limit #{startIndex},#{pageSize}
+   </select>
+   <select id="getRowCount"
+           resultType="int">
+      select count(*)
+      from tms_projects
+      <include refid="whereQuery"/>
+   </select>
+    <!--ids对应dao层的数组参数
+    通过动态sql拼接（1,2,3）这样格式的数据-->
+    <update id="validById" >
+        update tms_projects
+        set valid =#{valid}
+        where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </update>
+    <insert id="insertObject" parameterType="project">
+        insert into tms_projects(id,code,name,beginDate,endDate,valid,note,
+        createdTime,modifiedTime,createdUser,modifiedUser)
+         values(#{id},#{code},#{name},#{beginDate},#{endDate},#{valid},#{note},
+         now(),now(),#{createdUser},#{modifiedUser})
+    </insert>
+    <select id="findObjectById" parameterType="integer" resultType="project">
+        select * from tms_projects where id=#{id}
+    </select>
+    <update id="updateObject" parameterType="project">
+         update tms_projects
+        set code=#{code},
+        name =#{name},
+        beginDate =#{beginDate},
+        endDate =#{endDate},
+        valid =#{valid},
+        note =#{note},
+        modifiedTime=now(),
+        modifiedUser=#{modifiedUser}
+        where id=#{id}
+    </update>
+    <select id="findPrjIdAndNames" resultType="map">
+        select id,name
+        from tms_projects
+        where valid=1
+    </select>
+</mapper>
+
+

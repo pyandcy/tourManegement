@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.ttms.product.dao.ProductTypeDao">
+    <select id="findObjects" resultType="map">
+        select c.*,p.name parentName
+        from tms_classes c left join tms_classes p
+        on c.parentId=p.id
+    </select>
+    <select id="hasChilds" resultType="integer" parameterType="integer">
+        select count(*) from tms_classes
+        where parentId=#{id}
+    </select>
+    <delete id="deleteObjects" parameterType="integer">
+        delete from tms_classes
+        where id=${id}
+    </delete>
+    <select id="findZtreeObject" resultType="productType">
+        select id,parentId,name
+        from tms_classes
+    </select>
+    <insert id="insertObject" parameterType="productType">
+        insert into tms_classes(name,sort,parentId,note,
+        createdUser,createdTime,modifiedUser,modifiedTime)
+        values(#{name},#{sort},#{parentId},#{note},#{createdUser},now(),#{modifiedUser},now())
+    </insert>
+    <update id="updateObject" parameterType="productType">
+        update tms_classes
+        set name=#{name},
+        sort=#{sort},
+        parentId=#{parentId},
+        note=#{note},
+        createdTime=now(),
+        modifiedTime=now(),
+        createdUser=#{createdUser},
+        modifiedUser=#{modifiedUser}
+        where id=#{id}
+    </update>
+</mapper>
